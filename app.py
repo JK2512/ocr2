@@ -2,18 +2,20 @@ import streamlit as st
 import numpy as np
 from PIL import Image, ImageDraw
 import easyocr
-from transformers import VisionEncoderDecoderModel, TrOCRProcessor
-from transformers import AutoTokenizer
+from transformers import TrOCRProcessor, AutoTokenizer, AutoModelForVision2Seq
 import torch
 
 # Load the Hugging Face model and processor
-tokenizer = AutoTokenizer.from_pretrained("microsoft/trocr-base-handwritten", clean_up_tokenization_spaces=True)
-processor = TrOCRProcessor.from_pretrained('microsoft/trocr-base-handwritten')
-model = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-handwritten')
+@st.cache_resource
+def load_models():
+    tokenizer = AutoTokenizer.from_pretrained("microsoft/trocr-base-handwritten", clean_up_tokenization_spaces=True)
+    processor = TrOCRProcessor.from_pretrained('microsoft/trocr-base-handwritten')
+    model = AutoModelForVision2Seq.from_pretrained('microsoft/trocr-base-handwritten')
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model.to(device)
+    return tokenizer, processor, model
 
-# Move model to GPU if available
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model.to(device)
+tokenizer, processor, model = load_models()
 
 # Load EasyOCR model for Hindi and English
 reader = easyocr.Reader(['en', 'hi'], gpu=False)
