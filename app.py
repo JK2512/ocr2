@@ -6,8 +6,8 @@ from transformers import VisionEncoderDecoderModel, TrOCRProcessor
 from transformers import AutoTokenizer
 import torch
 
-# Load the Hugging Face model and processor
-tokenizer = AutoTokenizer.from_pretrained("microsoft/trocr-base-handwritten", clean_up_tokenization_spaces=True)
+# Load the Hugging Face model and processor with updated configurations
+tokenizer = AutoTokenizer.from_pretrained("microsoft/trocr-base-handwritten", clean_up_tokenization_spaces=False)
 processor = TrOCRProcessor.from_pretrained('microsoft/trocr-base-handwritten')
 model = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-handwritten')
 
@@ -60,7 +60,6 @@ def highlight_keywords(image, results, keyword):
 
 # Streamlit application
 def main():
-    # Set page configuration at the very start
     st.set_page_config(page_title="OCR Application", layout="centered")
     
     st.title("📄 Optical Character Recognition (OCR) with Keyword Search")
@@ -110,3 +109,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
