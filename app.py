@@ -2,20 +2,18 @@ import streamlit as st
 import numpy as np
 from PIL import Image, ImageDraw
 import easyocr
-from transformers import TrOCRProcessor, AutoTokenizer, AutoModelForVision2Seq
+from transformers import VisionEncoderDecoderModel, TrOCRProcessor
+from transformers import AutoTokenizer
 import torch
 
 # Load the Hugging Face model and processor
-@st.cache_resource
-def load_models():
-    tokenizer = AutoTokenizer.from_pretrained("microsoft/trocr-base-handwritten", clean_up_tokenization_spaces=True)
-    processor = TrOCRProcessor.from_pretrained('microsoft/trocr-base-handwritten')
-    model = AutoModelForVision2Seq.from_pretrained('microsoft/trocr-base-handwritten')
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model.to(device)
-    return tokenizer, processor, model
+tokenizer = AutoTokenizer.from_pretrained("microsoft/trocr-base-handwritten", clean_up_tokenization_spaces=True)
+processor = TrOCRProcessor.from_pretrained('microsoft/trocr-base-handwritten')
+model = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-handwritten')
 
-tokenizer, processor, model = load_models()
+# Move model to GPU if available
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model.to(device)
 
 # Load EasyOCR model for Hindi and English
 reader = easyocr.Reader(['en', 'hi'], gpu=False)
@@ -62,6 +60,7 @@ def highlight_keywords(image, results, keyword):
 
 # Streamlit application
 def main():
+    # Set page configuration at the very start
     st.set_page_config(page_title="OCR Application", layout="centered")
     
     st.title("📄 Optical Character Recognition (OCR) with Keyword Search")
